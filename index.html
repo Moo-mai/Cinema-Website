@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โรงภาพยนตร์ออนไลน์ - จองตั๋วหนัง</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .section {
+            padding: 30px;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .movie-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .movie-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        /* *** ส่วนสำคัญ: CSS สำหรับแสดงรูปโปสเตอร์ *** */
+        .movie-poster {
+            width: 100%;
+            height: 350px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: white;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .movie-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .movie-poster .placeholder {
+            font-size: 3em;
+        }
+
+        .movie-info {
+            padding: 20px;
+        }
+
+        .movie-info h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        .movie-info p {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .showtimes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .showtime-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s;
+        }
+
+        .showtime-btn:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .booking-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .booking-details h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .cinema-screen {
+            background: #34495e;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            letter-spacing: 2px;
+        }
+
+        .seats-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .seat-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .seat {
+            width: 40px;
+            height: 40px;
+            background: #95a5a6;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            color: white;
+            font-weight: bold;
+        }
+
+        .seat:hover {
+            transform: scale(1.1);
+        }
+
+        .seat.vip {
+            background: #f39c12;
+        }
+
+        .seat.selected {
+            background: #27ae60;
+        }
+
+        .seat.occupied {
+            background: #e74c3c;
+            cursor: not-allowed;
+        }
+
+        .seat.occupied:hover {
+            transform: none;
+        }
+
+        .seat-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+        }
+
+        .price-summary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .price-summary h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .total-price {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            background: #229954;
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: #7f8c8d;
+        }
+
+        .btn-secondary:hover {
+            background: #6c7a7b;
+        }
+
+        .confirmation-section {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .ticket {
+            background: white;
+            border: 3px dashed #3498db;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            margin: 30px auto;
+            text-align: left;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .ticket-header {
+            text-align: center;
+            border-bottom: 2px dashed #bdc3c7;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .ticket-header h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .ticket-info {
+            margin: 15px 0;
+        }
+
+        .ticket-info strong {
+            color: #2c3e50;
+            display: inline-block;
+            width: 150px;
+        }
+
+        .ticket-seats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .qr-code {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 20px auto;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9em;
+        }
+
+        .row-label {
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+            }
+            .btn, header p {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 โรงภาพยนตร์ออนไลน์</h1>
+            <p>จองตั๋วหนังออนไลน์ง่ายๆ ในไม่กี่คลิก</p>
+        </header>
+
+        <!-- Section 1: Movies Selection -->
+        <div id="movies-section" class="section active">
+            <h2 style="color: #2c3e50; margin-bottom: 20px;">🎥 เลือกหนังและรอบฉาย</h2>
+            <div class="movies-grid" id="moviesGrid"></div>
+        </div>
+
+        <!-- Section 2: Seat Selection -->
+        <div id="seats-section" class="section">
+            <div class="booking-details" id="bookingDetails"></div>
+            
+            <h2 style="color: #2c3e50; margin-bottom: 20px; text-align: center;">🪑 เลือกที่นั่งของคุณ</h2>
+            
+            <div class="cinema-screen">
+                === จอภาพยนตร์ ===
+            </div>
+
+            <div class="seats-container" id="seatsContainer"></div>
+
+            <div class="seat-legend">
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #95a5a6;"></div>
+                    <span>ที่นั่งว่าง (150฿)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #f39c12;"></div>
+                    <span>ที่นั่ง VIP (250฿)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #27ae60;"></div>
+                    <span>ที่นั่งที่เลือก</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #e74c3c;"></div>
+                    <span>ที่นั่งไม่ว่าง</span>
+                </div>
+            </div>
+
+            <div class="price-summary" id="priceSummary">
+                <h3>💰 สรุปค่าใช้จ่าย</h3>
+                <div class="price-row">
+                    <span>ที่นั่งธรรมดา:</span>
+                    <span id="normalCount">0 x 150฿ = 0฿</span>
+                </div>
+                <div class="price-row">
+                    <span>ที่นั่ง VIP:</span>
+                    <span id="vipCount">0 x 250฿ = 0฿</span>
+                </div>
+                <div class="total-price">
+                    <div class="price-row">
+                        <span>ยอดรวมทั้งหมด:</span>
+                        <span id="totalPrice">0฿</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="btn btn-secondary" onclick="goToMovies()">← กลับไปเลือกหนัง</button>
+                <button class="btn" onclick="confirmBooking()">ยืนยันการจอง →</button>
+            </div>
+        </div>
+
+        <!-- Section 3: Confirmation -->
+        <div id="confirmation-section" class="section">
+            <div class="confirmation-section">
+                <h2 style="color: #27ae60; margin-bottom: 30px;">✅ จองตั๋วสำเร็จ!</h2>
+                
+                <div class="ticket" id="ticketDetails">
+                    <div class="ticket-header">
+                        <h2>🎫 ใบจองตั๋วหนัง</h2>
+                        <p style="color: #7f8c8d;">โรงภาพยนตร์ออนไลน์</p>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="printTicket()">🖨️ พิมพ์ใบจอง</button>
+                <button class="btn btn-secondary" onclick="newBooking()">จองตั๋วใหม่</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // *** ส่วนสำคัญ: เพิ่ม property "poster" ในข้อมูลหนัง ***
+        const movies = [
+            {
+                id: 1,
+                title: "Avatar 3: The Next Adventure",
+                genre: "Sci-Fi, Adventure",
+                duration: "180 นาที",
+                showtimes: ["10:00", "13:30", "17:00", "20:30"],
+                // เพิ่ม URL รูปโปสเตอร์ตรงนี้
+                poster: "images/Avatar.png"
+            },
+            {
+                id: 2,
+                title: "Marvel Superheroes United",
+                genre: "Action, Adventure",
+                duration: "150 นาที",
+                showtimes: ["11:00", "14:00", "18:30", "21:00"],
+                poster: "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=400&h=600&fit=crop"
+            },
+            {
+                id: 3,
+                title: "Romance in Paris",
+                genre: "Romance, Drama",
+                duration: "120 นาที",
+                showtimes: ["12:00", "15:30", "19:00"],
+                poster: "https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=400&h=600&fit=crop"
+            },
+            {
+                id: 4,
+                title: "The Horror Mansion",
+                genre: "Horror, Thriller",
+                duration: "110 นาที",
+                showtimes: ["16:00", "19:30", "22:00"],
+                poster: "images/the horror mansion.webp"
+            }
+        ];
+
+        // Booking state
+        let currentBooking = {
+            movie: null,
+            showtime: null,
+            seats: [],
+            totalPrice: 0
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            displayMovies();
+        });
+
+        // *** ส่วนสำคัญ: แก้ไขฟังก์ชันแสดงหนัง เพื่อแสดงรูปภาพ ***
+        function displayMovies() {
+            const grid = document.getElementById('moviesGrid');
+            grid.innerHTML = movies.map(movie => `
+                <div class="movie-card">
+                    <div class="movie-poster">
+                        ${movie.poster 
+                            ? `<img src="${movie.poster}" alt="${movie.title}" onerror="this.parentElement.innerHTML='<span class=\\'placeholder\\'>🎬</span>'">`
+                            : '<span class="placeholder">🎬</span>'
+                        }
+                    </div>
+                    <div class="movie-info">
+                        <h3>${movie.title}</h3>
+                        <p><strong>ประเภท:</strong> ${movie.genre}</p>
+                        <p><strong>ความยาว:</strong> ${movie.duration}</p>
+                        <div class="showtimes">
+                            ${movie.showtimes.map(time => 
+                                `<button class="showtime-btn" onclick="selectShowtime(${movie.id}, '${time}')">${time}</button>`
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectShowtime(movieId, time) {
+            const movie = movies.find(m => m.id === movieId);
+            currentBooking.movie = movie;
+            currentBooking.showtime = time;
+            currentBooking.seats = [];
+            
+            displayBookingDetails();
+            generateSeats();
+            showSection('seats-section');
+        }
+
+        function displayBookingDetails() {
+            document.getElementById('bookingDetails').innerHTML = `
+                <h3>📋 รายละเอียดการจอง</h3>
+                <p><strong>หนัง:</strong> ${currentBooking.movie.title}</p>
+                <p><strong>รอบฉาย:</strong> ${currentBooking.showtime}</p>
+                <p><strong>ความยาว:</strong> ${currentBooking.movie.duration}</p>
+            `;
+        }
+
+        function generateSeats() {
+            const container = document.getElementById('seatsContainer');
+            const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+            const seatsPerRow = 10;
+            
+            // Random occupied seats
+            const occupiedSeats = [];
+            for (let i = 0; i < 15; i++) {
+                const row = rows[Math.floor(Math.random() * rows.length)];
+                const seat = Math.floor(Math.random() * seatsPerRow) + 1;
+                occupiedSeats.push(`${row}${seat}`);
+            }
+
+            container.innerHTML = rows.map(row => {
+                const isVipRow = ['D', 'E'].includes(row);
+                return `
+                    <div class="seat-row">
+                        <div class="row-label">${row}</div>
+                        ${Array.from({length: seatsPerRow}, (_, i) => {
+                            const seatNum = i + 1;
+                            const seatId = `${row}${seatNum}`;
+                            const isOccupied = occupiedSeats.includes(seatId);
+                            const seatClass = isOccupied ? 'occupied' : (isVipRow ? 'vip' : '');
+                            return `<div class="seat ${seatClass}" data-seat="${seatId}" data-price="${isVipRow ? 250 : 150}" onclick="toggleSeat(this)">${seatNum}</div>`;
+                        }).join('')}
+                        <div class="row-label">${row}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleSeat(element) {
+            if (element.classList.contains('occupied')) return;
+            
+            element.classList.toggle('selected');
+            updatePriceSummary();
+        }
+
+        function updatePriceSummary() {
+            const selectedSeats = document.querySelectorAll('.seat.selected');
+            let normalCount = 0;
+            let vipCount = 0;
+            let total = 0;
+
+            currentBooking.seats = [];
+
+            selectedSeats.forEach(seat => {
+                const price = parseInt(seat.dataset.price);
+                const seatId = seat.dataset.seat;
+                
+                currentBooking.seats.push({
+                    id: seatId,
+                    price: price
+                });
+
+                if (price === 150) {
+                    normalCount++;
+                } else {
+                    vipCount++;
+                }
+                total += price;
+            });
+
+            document.getElementById('normalCount').textContent = `${normalCount} x 150฿ = ${normalCount * 150}฿`;
+            document.getElementById('vipCount').textContent = `${vipCount} x 250฿ = ${vipCount * 250}฿`;
+            document.getElementById('totalPrice').textContent = `${total}฿`;
+            
+            currentBooking.totalPrice = total;
+        }
+
+        function confirmBooking() {
+            if (currentBooking.seats.length === 0) {
+                alert('กรุณาเลือกที่นั่งอย่างน้อย 1 ที่');
+                return;
+            }
+
+            displayTicket();
+            showSection('confirmation-section');
+        }
+
+        function displayTicket() {
+            const bookingId = 'BK' + Date.now().toString().slice(-8);
+            const today = new Date().toLocaleDateString('th-TH', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            const seatsList = currentBooking.seats.map(s => s.id).join(', ');
+
+            document.getElementById('ticketDetails').innerHTML = `
+                <div class="ticket-header">
+                    <h2>🎫 ใบจองตั๋วหนัง</h2>
+                    <p style="color: #7f8c8d;">โรงภาพยนตร์ออนไลน์</p>
+                </div>
+                
+                <div class="ticket-info">
+                    <strong>เลขที่การจอง:</strong> ${bookingId}
+                </div>
+                <div class="ticket-info">
+                    <strong>วันที่:</strong> ${today}
+                </div>
+                <div class="ticket-info">
+                    <strong>ภาพยนตร์:</strong> ${currentBooking.movie.title}
+                </div>
+                <div class="ticket-info">
+                    <strong>รอบฉาย:</strong> ${currentBooking.showtime}
+                </div>
+                <div class="ticket-info">
+                    <strong>ความยาว:</strong> ${currentBooking.movie.duration}
+                </div>
+                
+                <div class="ticket-seats">
+                    <strong>ที่นั่ง:</strong><br>
+                    <div style="margin-top: 10px; font-size: 1.2em; color: #27ae60;">
+                        ${seatsList}
+                    </div>
+                </div>
+                
+                <div class="ticket-info" style="font-size: 1.3em; color: #e74c3c; margin-top: 20px;">
+                    <strong>ยอดชำระทั้งหมด:</strong> ${currentBooking.totalPrice}฿
+                </div>
+                
+                <div class="qr-code">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">📱</div>
+                        <div style="font-size: 0.8em;">QR Code</div>
+                        <div style="font-size: 0.7em;">${bookingId}</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 2px dashed #bdc3c7; color: #7f8c8d; font-size: 0.9em;">
+                    <p>กรุณาแสดงใบจองนี้ที่เคาน์เตอร์ก่อนเข้าชม</p>
+                    <p>ขอบคุณที่ใช้บริการ</p>
+                </div>
+            `;
+        }
+
+        function printTicket() {
+            window.print();
+        }
+
+        function newBooking() {
+            currentBooking = {
+                movie: null,
+                showtime: null,
+                seats: [],
+                totalPrice: 0
+            };
+            showSection('movies-section');
+        }
+
+        function goToMovies() {
+            showSection('movies-section');
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
