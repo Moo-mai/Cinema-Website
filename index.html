@@ -75,7 +75,6 @@
             box-shadow: 0 15px 30px rgba(0,0,0,0.2);
         }
 
-        /* *** ส่วนสำคัญ: CSS สำหรับแสดงรูปโปสเตอร์ *** */
         .movie-poster {
             width: 100%;
             height: 350px;
@@ -452,7 +451,6 @@
     </div>
 
     <script>
-        // *** ส่วนสำคัญ: เพิ่ม property "poster" ในข้อมูลหนัง ***
         const movies = [
             {
                 id: 1,
@@ -460,8 +458,7 @@
                 genre: "Sci-Fi, Adventure",
                 duration: "180 นาที",
                 showtimes: ["10:00", "13:30", "17:00", "20:30"],
-                // เพิ่ม URL รูปโปสเตอร์ตรงนี้
-                poster: "images/Avatar.png"
+                poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=600&fit=crop"
             },
             {
                 id: 2,
@@ -485,11 +482,10 @@
                 genre: "Horror, Thriller",
                 duration: "110 นาที",
                 showtimes: ["16:00", "19:30", "22:00"],
-                poster: "images/the horror mansion.webp"
+                poster: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=400&h=600&fit=crop"
             }
         ];
 
-        // Booking state
         let currentBooking = {
             movie: null,
             showtime: null,
@@ -497,12 +493,10 @@
             totalPrice: 0
         };
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             displayMovies();
         });
 
-        // *** ส่วนสำคัญ: แก้ไขฟังก์ชันแสดงหนัง เพื่อแสดงรูปภาพ ***
         function displayMovies() {
             const grid = document.getElementById('moviesGrid');
             grid.innerHTML = movies.map(movie => `
@@ -552,7 +546,6 @@
             const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
             const seatsPerRow = 10;
             
-            // Random occupied seats
             const occupiedSeats = [];
             for (let i = 0; i < 15; i++) {
                 const row = rows[Math.floor(Math.random() * rows.length)];
